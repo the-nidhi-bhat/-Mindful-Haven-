@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Flow Connect | Mindful Haven</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --sage-gradient: linear-gradient(135deg, #c9dcc4 0%, #d4c5e8 100%);
+            --sage-dark: #5a6b56;
+            --bg-secondary: #ffffff;
+            --text-dark: #111827;
+            --accent: #6366f1;
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.3);
+        }
+
+        [data-theme="dark"] {
+            --sage-gradient: linear-gradient(135deg, #1a1d2e 0%, #1f2937 100%);
+            --sage-dark: #94a3b8;
+            --bg-secondary: #1a1d2e;
+            --text-dark: #f1f5f9;
+            --accent: #8b5cf6;
+            --glass-bg: rgba(26, 29, 46, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--sage-gradient);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 8%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-decoration: none;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-exit {
+            padding: 10px 24px;
+            background: var(--text-dark);
+            color: var(--bg-secondary);
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .board-wrap {
+            position: relative;
+            padding: 25px;
+            background: var(--glass-bg);
+            border-radius: 40px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(20px);
+        }
+
+        canvas {
+            display: block;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            cursor: crosshair;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: var(--text-dark);
+            color: var(--bg-secondary);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 40px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text-dark);
+            border: 1px solid var(--glass-border);
+        }
+
+        .level-badge {
+            font-family: 'Playfair Display';
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        #winMsg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(16, 185, 129, 0.98);
+            padding: 30px 50px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 800;
+            font-size: 2rem;
+            display: none;
+            box-shadow: 0 20px 50px rgba(16, 185, 129, 0.4);
+            font-family: 'Playfair Display';
+            animation: floatUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            z-index: 10;
+        }
+
+        #winMsg button {
+            display: block;
+            margin: 20px auto 0;
+            background: white;
+            color: #10b981;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #winMsg button:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes floatUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -30%);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="index.html" class="logo"><i class="fas fa-brain"></i> Mindful Haven</a>
+        <a href="games.html" class="btn-exit">Back</a>
+    </nav>
+
+    <div class="game-container">
+        <div class="level-badge" id="levelDisp">Level 1</div>
+        <h2 style="margin-bottom:20px; font-family:'Playfair Display'; font-size: 2.2rem;">Flow Connect</h2>
+
+        <div class="board-wrap">
+            <canvas id="canvas" width="320" height="320"></canvas>
+            <div id="winMsg">
+                <div>Pure Flow!</div>
+                <button onclick="nextLevel()">Next Level</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" onclick="resetBoard()">Reset</button>
+            <button class="btn" onclick="nextLevel()" id="skipBtn">Skip Level</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const size = 5;
+        const cellSize = 64;
+
+        // Colors
+        const colors = ['#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+        const glowColors = ['rgba(236, 72, 153, 0.4)', 'rgba(59, 130, 246, 0.4)', 'rgba(16, 185, 129, 0.4)', 'rgba(245, 158, 11, 0.4)', 'rgba(139, 92, 246, 0.4)'];
+
+        // Levels: [startIdx, endIdx, colorIdx]
+        const levels = [
+            [   // Level 1 (Tutorial)
+                [0, 4, 0], [5, 9, 1], [10, 14, 2], [15, 19, 3]
+            ],
+            [   // Level 2 (Cross)
+                [2, 22, 0], [10, 14, 1], [0, 24, 2]
+            ],
+            [   // Level 3
+                [0, 20, 0], [4, 24, 1], [2, 22, 2], [10, 14, 3]
+            ],
+            [   // Level 4
+                [1, 13, 0], [3, 11, 1], [5, 17, 2], [9, 21, 3], [7, 19, 4]
+            ],
+            [   // Level 5
+                [0, 24, 0], [4, 20, 1], [2, 12, 2], [10, 14, 3], [22, 16, 4]
+            ]
+        ];
+
+        let currentLevelIdx = 0;
+        let endpoints = [];
+        let paths = [];
+        let draggingFrom = null;
+
+        function initGame(levelIdx) {
+            currentLevelIdx = levelIdx;
+            if (currentLevelIdx >= levels.length) currentLevelIdx = 0; // Loop or end
+
+            document.getElementById('levelDisp').innerText = `Level ${currentLevelIdx + 1}`;
+            document.getElementById('winMsg').style.display = 'none';
+
+            resetBoard();
+        }
+
+        function resetBoard() {
+            endpoints = [];
+            const level = levels[currentLevelIdx];
+            paths = level.map(() => []);
+
+            level.forEach((d, i) => {
+                const cIdx = d[2] % colors.length;
+                endpoints.push({ idx: d[0], color: colors[cIdx], glow: glowColors[cIdx], pathIdx: i });
+                endpoints.push({ idx: d[1], color: colors[cIdx], glow: glowColors[cIdx], pathIdx: i });
+            });
+
+            draw();
+        }
+
+        function nextLevel() {
+            initGame(currentLevelIdx + 1);
+        }
+
+        function getCell(x, y) {
+            const col = Math.floor(x / cellSize);
+            const row = Math.floor(y / cellSize);
+            if (col < 0 || col >= size || row < 0 || row >= size) return -1;
+            return row * size + col;
+        }
+
+        function getXY(idx) {
+            return { x: (idx % size) * cellSize, y: Math.floor(idx / size) * cellSize };
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Grid
+            ctx.strokeStyle = 'rgba(0,0,0,0.05)';
+            ctx.lineWidth = 2;
+            for (let i = 1; i < size; i++) {
+                ctx.beginPath(); ctx.moveTo(i * cellSize, 10); ctx.lineTo(i * cellSize, canvas.height - 10); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(10, i * cellSize); ctx.lineTo(canvas.width - 10, i * cellSize); ctx.stroke();
+            }
+
+            // Paths
+            paths.forEach((path, i) => {
+                if (path.length === 0) return;
+                // find color
+                const ep = endpoints.find(e => e.pathIdx === i);
+
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = ep.color;
+                ctx.strokeStyle = ep.color;
+                ctx.lineWidth = cellSize * 0.4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                ctx.beginPath();
+                path.forEach((idx, n) => {
+                    const pos = getXY(idx);
+                    const cx = pos.x + cellSize / 2;
+                    const cy = pos.y + cellSize / 2;
+                    if (n === 0) ctx.moveTo(cx, cy);
+                    else ctx.lineTo(cx, cy);
+                });
+                ctx.stroke();
+
+                // Highlight
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = "rgba(255,255,255,0.4)";
+                ctx.lineWidth = cellSize * 0.15;
+                ctx.stroke();
+            });
+
+            // Endpoints
+            endpoints.forEach(ep => {
+                const pos = getXY(ep.idx);
+                const cx = pos.x + cellSize / 2;
+                const cy = pos.y + cellSize / 2;
+
+                // Glow
+                const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 30);
+                grad.addColorStop(0, ep.color);
+                grad.addColorStop(1, "rgba(255,255,255,0)");
+
+                ctx.fillStyle = grad;
+                ctx.beginPath(); ctx.arc(cx, cy, 32, 0, Math.PI * 2); ctx.fill();
+
+                ctx.fillStyle = ep.color;
+                ctx.shadowBlur = 10; ctx.shadowColor = ep.color;
+                ctx.beginPath(); ctx.arc(cx, cy, 14, 0, Math.PI * 2); ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+        }
+
+        function start(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            const cell = getCell(x, y);
+
+            const ep = endpoints.find(p => p.idx === cell);
+            if (ep) {
+                draggingFrom = { pathIdx: ep.pathIdx };
+                paths[ep.pathIdx] = [cell];
+                draw();
+            }
+        }
+
+        function move(e) {
+            if (!draggingFrom) return;
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            const cell = getCell(x, y);
+
+            if (cell === -1) return;
+
+            const currentPathArr = paths[draggingFrom.pathIdx];
+            const lastCell = currentPathArr[currentPathArr.length - 1];
+
+            if (cell !== lastCell) {
+                const lx = lastCell % size, ly = Math.floor(lastCell / size);
+                const cx = cell % size, cy = Math.floor(cell / size);
+                if (Math.abs(lx - cx) + Math.abs(ly - cy) !== 1) return; // Only orthogonal
+
+                // Collision with OTHER paths
+                let collision = false;
+                paths.forEach((p, pid) => {
+                    if (pid !== draggingFrom.pathIdx && p.includes(cell)) collision = true;
+                });
+                // Also collision with endpoints that are NOT ours
+                const hitEp = endpoints.find(e => e.idx === cell);
+                if (hitEp && hitEp.pathIdx !== draggingFrom.pathIdx) collision = true;
+
+                if (collision) return;
+
+                // Self-intersection (backtracking)
+                if (currentPathArr.includes(cell)) {
+                    const idx = currentPathArr.indexOf(cell);
+                    paths[draggingFrom.pathIdx] = currentPathArr.slice(0, idx + 1);
+                    draw();
+                    return;
+                }
+
+                currentPathArr.push(cell);
+                draw();
+
+                // Stop if hit target
+                if (hitEp && hitEp.pathIdx === draggingFrom.pathIdx) {
+                    draggingFrom = null; // Snap
+                    checkWin();
+                }
+            }
+        }
+
+        function end() {
+            draggingFrom = null;
+            checkWin();
+        }
+
+        function checkWin() {
+            let allConnected = true;
+            for (let i = 0; i < levels[currentLevelIdx].length; i++) {
+                const p = paths[i];
+                if (!p || p.length < 2) { allConnected = false; break; }
+                const levelEps = endpoints.filter(e => e.pathIdx === i);
+                const start = p[0];
+                const end = p[p.length - 1];
+                // Check if path connects endpoint A to B
+                const valid = (start === levelEps[0].idx && end === levelEps[1].idx) ||
+                    (start === levelEps[1].idx && end === levelEps[0].idx);
+                if (!valid) { allConnected = false; break; }
+            }
+
+            if (allConnected) {
+                document.getElementById('winMsg').style.display = 'block';
+                playSound();
+            }
+        }
+
+        function playSound() {
+            const ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+            const o = ctxAudio.createOscillator();
+            const g = ctxAudio.createGain();
+            o.type = 'sine'; o.frequency.setValueAtTime(440, ctxAudio.currentTime);
+            o.frequency.exponentialRampToValueAtTime(880, ctxAudio.currentTime + 0.4);
+            g.gain.setValueAtTime(0.2, ctxAudio.currentTime);
+            g.gain.linearRampToValueAtTime(0, ctxAudio.currentTime + 0.8);
+            o.connect(g); g.connect(ctxAudio.destination);
+            o.start(); o.stop(ctxAudio.currentTime + 0.8);
+        }
+
+        canvas.addEventListener('mousedown', start);
+        canvas.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', end);
+        canvas.addEventListener('touchstart', start, { passive: false });
+        canvas.addEventListener('touchmove', move, { passive: false });
+        window.addEventListener('touchend', end);
+
+        initGame(0);
+    </script>
+</body>
+
+</html>

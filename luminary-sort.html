@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Luminary Sort | Mindful Haven</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="luminary-sort.css">
+</head>
+
+<body>
+    <nav>
+        <a href="index.html" class="logo"><i class="fas fa-brain"></i> Mindful Haven</a>
+        <a href="games.html" class="btn-back">End Session</a>
+    </nav>
+
+    <div class="game-area" id="gameArea">
+        <div class="hud">
+            <div class="hud-item">
+                <span class="hud-val" id="score">0</span>
+                <span class="hud-lbl">Harmony</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-val" id="combo">1x</span>
+                <span class="hud-lbl">Flow</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-val" id="time">60</span>
+                <span class="hud-lbl">Time</span>
+            </div>
+        </div>
+
+        <div class="bins">
+            <div class="bin" id="bin-sun" data-type="sun" style="--bin-color: #f59e0b; color: #f59e0b;">
+                <i class="fas fa-sun"></i>
+                <div class="bin-label">Energy</div>
+            </div>
+            <div class="bin" id="bin-leaf" data-type="leaf" style="--bin-color: #10b981; color: #10b981;">
+                <i class="fas fa-leaf"></i>
+                <div class="bin-label">Growth</div>
+            </div>
+            <div class="bin" id="bin-moon" data-type="moon" style="--bin-color: #6366f1; color: #6366f1;">
+                <i class="fas fa-moon"></i>
+                <div class="bin-label">Calm</div>
+            </div>
+        </div>
+
+        <div class="start-overlay" id="overlay">
+            <div class="start-card">
+                <h1 style="font-family:'Playfair Display'; margin-bottom:15px; font-size:2.5rem;">Luminary Sort</h1>
+                <p style="color:var(--text-dark); opacity:0.8; line-height:1.6; font-size:1.1rem;">
+                    Orbs of light are descending. Guide them to their homes to restore balance. <br>
+                    <span style="font-size:0.9rem; display:block; margin-top:10px; opacity:0.6;">(Drag and Drop)</span>
+                </p>
+                <button class="start-btn" onclick="startGame()">Begin Flow</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="luminary-sort.js"></script>
+</body>
+
+</html>
